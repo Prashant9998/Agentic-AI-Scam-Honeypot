@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Honeypot API Tester - FastAPI Edition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #6366f1, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 2rem;
+        }
+
+        .server-status {
+            text-align: center;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .status-online {
+            background: rgba(16, 185, 129, 0.1);
+            border: 2px solid #10b981;
+            color: #10b981;
+        }
+
+        .status-offline {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid #ef4444;
+            color: #ef4444;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #6366f1;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #cbd5e1;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background: #0f172a;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-family: inherit;
+            margin-bottom: 1rem;
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .response-box {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 1.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+        }
+
+        .success {
+            color: #10b981;
+        }
+
+        .error {
+            color: #ef4444;
+        }
+
+        .warning {
+            color: #f59e0b;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+
+        .badge-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .badge-error {
+            background: #ef4444;
+            color: white;
+        }
+
+        pre {
+            background: #000;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🛡️ Honeypot API Tester</h1>
+        <p class="subtitle">FastAPI Edition - Test all endpoints before deployment</p>
+
+        <div id="serverStatus" class="server-status status-offline">
+            ⏳ Checking server status...
+        </div>
+
+        <div class="card" style="margin-bottom: 1.5rem;">
+            <div class="card-title">⚙️ Configuration</div>
+            <label>API Base URL</label>
+            <input type="text" id="apiUrl" value="">
+
+            <label>API Key (X-API-KEY)</label>
+            <input type="text" id="apiKey" value="honeypot123">
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <div class="card-title">🏦 Test Login Endpoint</div>
+                <label>Username</label>
+                <input type="text" id="loginUsername" value="testuser" placeholder="Enter username">
+
+                <label>Password</label>
+                <input type="password" id="loginPassword" value="test123" placeholder="Enter password">
+
+                <button onclick="testLogin()">🚀 Test Login</button>
+
+                <div style="margin-top: 1rem;">
+                    <div class="card-title" style="font-size: 1rem;">Response:</div>
+                    <div id="loginResponse" class="response-box">
+                        <span style="color: #94a3b8;">Click "Test Login" to test...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">📞 Test IVR Endpoint</div>
+                <label>Caller ID</label>
+                <input type="text" id="ivrCallerId" value="+919876543210" placeholder="Phone number">
+
+                <label>User Input</label>
+                <input type="text" id="ivrInput" value="My account is blocked" placeholder="IVR input">
+
+                <button onclick="testIVR()">🚀 Test IVR</button>
+
+                <div style="margin-top: 1rem;">
+                    <div class="card-title" style="font-size: 1rem;">Response:</div>
+                    <div id="ivrResponse" class="response-box">
+                        <span style="color: #94a3b8;">Click "Test IVR" to test...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">🆔 Test KYC Endpoint</div>
+                <label>Aadhaar Number</label>
+                <input type="text" id="kycAadhaar" value="123456789012" placeholder="12-digit Aadhaar">
+
+                <label>PAN Number</label>
+                <input type="text" id="kycPan" value="ABCDE1234F" placeholder="PAN (e.g., ABCDE1234F)">
+
+                <button onclick="testKYC()">🚀 Test KYC</button>
+
+                <div style="margin-top: 1rem;">
+                    <div class="card-title" style="font-size: 1rem;">Response:</div>
+                    <div id="kycResponse" class="response-box">
+                        <span style="color: #94a3b8;">Click "Test KYC" to test...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">🔐 Test Authentication</div>
+                <p style="color: #94a3b8; margin-bottom: 1rem; font-size: 0.9rem;">
+                    Test unauthorized access (without API key)
+                </p>
+
+                <button onclick="testUnauthorized()" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                    🚫 Test Unauthorized Access
+                </button>
+
+                <div style="margin-top: 1rem;">
+                    <div class="card-title" style="font-size: 1rem;">Response:</div>
+                    <div id="authResponse" class="response-box">
+                        <span style="color: #94a3b8;">Click "Test Unauthorized Access"...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">🧪 Test All Endpoints</div>
+            <button onclick="testAll()"
+                style="background: linear-gradient(135deg, #10b981, #059669); font-size: 1.2rem;">
+                ✅ Run All Tests
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Auto-detect API base URL
+        window.onload = function () {
+            // Set API URL to current origin (works for both localhost and Vercel)
+            const apiUrlInput = document.getElementById('apiUrl');
+            apiUrlInput.value = window.location.origin;
+
+            // Check server status
+            checkServerStatus();
+        }
+
+        async function checkServerStatus() {
+            const statusDiv = document.getElementById('serverStatus');
+            const baseUrl = document.getElementById('apiUrl').value;
+
+            try {
+                const response = await fetch(`${baseUrl}/api/health`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    statusDiv.className = 'server-status status-online';
+                    statusDiv.innerHTML = `✅ Server Online - ${data.total_interactions} total interactions logged`;
+                } else {
+                    statusDiv.className = 'server-status status-offline';
+                    statusDiv.innerHTML = '❌ Server Offline - Start with: py honeypot_api.py';
+                }
+            } catch (error) {
+                statusDiv.className = 'server-status status-offline';
+                statusDiv.innerHTML = '❌ Server Offline - Start with: py honeypot_api.py';
+            }
+        }
+
+        async function testLogin() {
+            const responseDiv = document.getElementById('loginResponse');
+            const baseUrl = document.getElementById('apiUrl').value;
+            const apiKey = document.getElementById('apiKey').value;
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            responseDiv.innerHTML = '<span class="warning">⏳ Sending request...</span>';
+
+            try {
+                const response = await fetch(`${baseUrl}/api/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-KEY': apiKey
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+                displayResponse(responseDiv, response, data);
+            } catch (error) {
+                responseDiv.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        async function testIVR() {
+            const responseDiv = document.getElementById('ivrResponse');
+            const baseUrl = document.getElementById('apiUrl').value;
+            const apiKey = document.getElementById('apiKey').value;
+            const callerId = document.getElementById('ivrCallerId').value;
+            const input = document.getElementById('ivrInput').value;
+
+            responseDiv.innerHTML = '<span class="warning">⏳ Sending request...</span>';
+
+            try {
+                const response = await fetch(`${baseUrl}/api/ivr`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-KEY': apiKey
+                    },
+                    body: JSON.stringify({ caller_id: callerId, input })
+                });
+
+                const data = await response.json();
+                displayResponse(responseDiv, response, data);
+            } catch (error) {
+                responseDiv.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        async function testKYC() {
+            const responseDiv = document.getElementById('kycResponse');
+            const baseUrl = document.getElementById('apiUrl').value;
+            const apiKey = document.getElementById('apiKey').value;
+            const aadhaar = document.getElementById('kycAadhaar').value;
+            const pan = document.getElementById('kycPan').value;
+
+            responseDiv.innerHTML = '<span class="warning">⏳ Sending request...</span>';
+
+            try {
+                const response = await fetch(`${baseUrl}/api/kyc`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-KEY': apiKey
+                    },
+                    body: JSON.stringify({ aadhaar, pan })
+                });
+
+                const data = await response.json();
+                displayResponse(responseDiv, response, data);
+            } catch (error) {
+                responseDiv.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        async function testUnauthorized() {
+            const responseDiv = document.getElementById('authResponse');
+            const baseUrl = document.getElementById('apiUrl').value;
+
+            responseDiv.innerHTML = '<span class="warning">⏳ Testing without API key...</span>';
+
+            try {
+                const response = await fetch(`${baseUrl}/api/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                        // Intentionally no X-API-KEY header
+                    },
+                    body: JSON.stringify({ username: 'hacker', password: 'password' })
+                });
+
+                const data = await response.json();
+
+                if (response.status === 401) {
+                    responseDiv.innerHTML = `
+                        <span class="badge-success">PASSED</span>
+                        <span class="success">Authentication working correctly!</span><br><br>
+                        <strong>Status:</strong> ${response.status} Unauthorized<br>
+                        <strong>Response:</strong><pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    responseDiv.innerHTML = `
+                        <span class="badge-error">FAILED</span>
+                        <span class="error">Authentication not working - should return 401</span><br><br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                responseDiv.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        function displayResponse(div, response, data) {
+            let html = '';
+
+            if (response.ok) {
+                html += '<span class="badge-success">SUCCESS</span>';
+                html += `<span class="success">Status: ${response.status} OK</span><br><br>`;
+                html += '<strong style="color: #6366f1;">Response Data:</strong><br>';
+                html += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } else {
+                html += '<span class="badge-error">ERROR</span>';
+                html += `<span class="error">Status: ${response.status}</span><br><br>`;
+                html += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            }
+
+            div.innerHTML = html;
+        }
+
+        async function testAll() {
+            await checkServerStatus();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await testLogin();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await testIVR();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await testKYC();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await testUnauthorized();
+
+            alert('✅ All tests completed! Check each section for results.');
+        }
+    </script>
+</body>
+
+</html>

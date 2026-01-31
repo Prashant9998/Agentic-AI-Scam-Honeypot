@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic AI Scam Honeypot & Threat Intelligence System</title>
+    <!-- Cyber Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --cyber-black: #020204;
+            --cyber-dark: #0a0f14;
+            --cyber-panel: rgba(10, 15, 20, 0.85);
+            /* Neon Palette */
+            --neon-cyan: #00f3ff;
+            --neon-blue: #0066ff;
+            --neon-green: #0aff0a;
+            --neon-red: #ff003c;
+            --neon-amber: #ffcc00;
+
+            --text-main: #e0faff;
+            --text-dim: #5c7080;
+
+            --hud-border: 1px solid rgba(0, 243, 255, 0.3);
+            --hud-glow: 0 0 10px rgba(0, 243, 255, 0.2);
+        }
+
+        /* --- Global Animations --- */
+        @keyframes scanline {
+            0% {
+                transform: translateY(-100%);
+            }
+
+            100% {
+                transform: translateY(100%);
+            }
+        }
+
+        @keyframes glitch {
+            0% {
+                text-shadow: 2px 0 var(--neon-red), -2px 0 var(--neon-blue);
+            }
+
+            25% {
+                text-shadow: -2px 0 var(--neon-red), 2px 0 var(--neon-blue);
+            }
+
+            50% {
+                text-shadow: 2px 0 var(--neon-red), -2px 0 var(--neon-blue);
+            }
+
+            75% {
+                text-shadow: -2px 0 var(--neon-red), 2px 0 var(--neon-blue);
+            }
+
+            100% {
+                text-shadow: 2px 0 var(--neon-red), -2px 0 var(--neon-blue);
+            }
+        }
+
+        @keyframes pulse-green {
+            0% {
+                box-shadow: 0 0 5px var(--neon-green);
+            }
+
+            50% {
+                box-shadow: 0 0 15px var(--neon-green), 0 0 5px var(--neon-green) inset;
+            }
+
+            100% {
+                box-shadow: 0 0 5px var(--neon-green);
+            }
+        }
+
+        @keyframes border-flash {
+            0% {
+                border-color: rgba(0, 243, 255, 0.3);
+            }
+
+            50% {
+                border-color: rgba(0, 243, 255, 0.8);
+            }
+
+            100% {
+                border-color: rgba(0, 243, 255, 0.3);
+            }
+        }
+
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background-color: var(--cyber-black);
+            /* Sci-Fi Grid Background */
+            background-image:
+                linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* CRT Scanline Overlay */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* --- Header: Command Center Style --- */
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--neon-cyan);
+            background: linear-gradient(180deg, rgba(0, 243, 255, 0.05) 0%, transparent 100%);
+            position: relative;
+        }
+
+        header::before,
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            width: 10px;
+            height: 10px;
+            background: var(--neon-cyan);
+        }
+
+        header::before {
+            left: 0;
+        }
+
+        header::after {
+            right: 0;
+        }
+
+        header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            color: var(--neon-cyan);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px var(--neon-cyan);
+            position: relative;
+            display: inline-block;
+        }
+
+        header h1:hover {
+            animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+        }
+
+        header p {
+            color: var(--neon-blue);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* --- Layout --- */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 25px;
+            margin-bottom: 20px;
+        }
+
+        /* --- HUD Cards --- */
+        .card {
+            background: var(--cyber-panel);
+            border: 1px solid var(--neon-cyan);
+            position: relative;
+            padding: 25px;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.05);
+            border-left: 2px solid var(--neon-cyan);
+        }
+
+        /* HUD Corner Accents */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            right: -1px;
+            width: 20px;
+            height: 20px;
+            border-top: 2px solid var(--neon-cyan);
+            border-right: 2px solid var(--neon-cyan);
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            right: -1px;
+            width: 20px;
+            height: 20px;
+            border-bottom: 2px solid var(--neon-cyan);
+            border-right: 2px solid var(--neon-cyan);
+        }
+
+        .card-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: var(--neon-cyan);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .card-title::before {
+            content: '>>';
+            margin-right: 10px;
+            color: var(--neon-green);
+        }
+
+        /* --- Inputs --- */
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--text-dim);
+            color: var(--neon-green);
+            font-family: 'Share Tech Mono', monospace;
+            padding: 15px;
+            font-size: 1rem;
+            resize: vertical;
+            transition: all 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--neon-green);
+            box-shadow: 0 0 10px rgba(10, 255, 10, 0.2);
+        }
+
+        textarea::placeholder {
+            color: rgba(92, 112, 128, 0.5);
+        }
+
+        /* --- Buttons: Tactical / Military Style --- */
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+        }
+
+        .btn-primary {
+            background: var(--neon-cyan);
+            color: var(--cyber-black);
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        .btn-primary:hover {
+            background: #ccfcff;
+            box-shadow: 0 0 20px var(--neon-cyan);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--neon-green);
+            color: var(--cyber-black);
+            box-shadow: 0 0 10px var(--neon-green);
+        }
+
+        .btn-success:hover {
+            background: #ccffcc;
+            box-shadow: 0 0 20px var(--neon-green);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--neon-red);
+            color: white;
+            box-shadow: 0 0 10px var(--neon-red);
+        }
+
+        .btn-danger:hover {
+            background: #ff4d79;
+            box-shadow: 0 0 20px var(--neon-red);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-color: white;
+        }
+
+        button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            pointer-events: none;
+            filter: grayscale(100%);
+        }
+
+        /* --- Conversation: Terminal Window --- */
+        .conversation {
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid var(--text-dim);
+            padding: 20px;
+            min-height: 400px;
+            max-height: 600px;
+            overflow-y: auto;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .conversation::-webkit-scrollbar {
+            width: 8px;
+            background: #000;
+        }
+
+        .conversation::-webkit-scrollbar-thumb {
+            background: var(--neon-cyan);
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-left: 2px solid transparent;
+            animation: slideInRight 0.3s cubic-bezier(0, 1, 0.5, 1) forwards;
+            opacity: 0;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .message.scammer {
+            border-left-color: var(--neon-red);
+            background: linear-gradient(90deg, rgba(255, 0, 60, 0.1), transparent);
+        }
+
+        .message.ai {
+            border-left-color: var(--neon-cyan);
+            background: linear-gradient(90deg, rgba(0, 243, 255, 0.1), transparent);
+        }
+
+        .message.system {
+            border-left-color: var(--neon-amber);
+            background: linear-gradient(90deg, rgba(255, 204, 0, 0.1), transparent);
+            color: var(--neon-amber);
+        }
+
+        .message-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            opacity: 0.8;
+            letter-spacing: 1px;
+        }
+
+        .message-text {
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+
+        /* Turn Counter Badge: Cyber Tag Style */
+        .turn-counter {
+            display: inline-block;
+            background: rgba(0, 243, 255, 0.1);
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            clip-path: polygon(0 0, 100% 0, 90% 100%, 0 100%);
+        }
+
+        /* --- Analysis Panel --- */
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .stat-box {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--text-dim);
+            padding: 15px;
+            text-align: center;
+            position: relative;
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            color: var(--neon-green);
+            text-shadow: 0 0 10px var(--neon-green);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .indicator-item {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.6);
+            border-bottom: 1px solid var(--text-dim);
+            padding: 12px;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .indicator-item:hover {
+            background: rgba(0, 243, 255, 0.1);
+        }
+
+        .indicator-type {
+            color: var(--neon-amber);
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .indicator-value {
+            color: var(--text-main);
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        /* Risk Badges */
+        .risk-badge {
+            display: inline-block;
+            padding: 10px 30px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            border: 2px solid currentColor;
+            box-shadow: 0 0 15px currentColor;
+            letter-spacing: 2px;
+        }
+
+        .risk-low {
+            color: var(--neon-green);
+            border-color: var(--neon-green);
+            background: rgba(10, 255, 10, 0.1);
+        }
+
+        .risk-medium {
+            color: var(--neon-amber);
+            border-color: var(--neon-amber);
+            background: rgba(255, 204, 0, 0.1);
+        }
+
+        .risk-high {
+            color: var(--neon-red);
+            border-color: var(--neon-red);
+            background: rgba(255, 0, 60, 0.1);
+            animation: pulse-red 1s infinite alternate;
+        }
+
+        @keyframes pulse-red {
+            from {
+                box-shadow: 0 0 10px var(--neon-red);
+            }
+
+            to {
+                box-shadow: 0 0 25px var(--neon-red), 0 0 10px var(--neon-red) inset;
+            }
+        }
+
+        .scam-type-badge {
+            background: transparent;
+            border: 1px solid var(--neon-amber);
+            color: var(--neon-amber);
+            padding: 10px;
+            text-align: center;
+            text-transform: uppercase;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(255, 204, 0, 0.2);
+        }
+
+        .empty-state {
+            color: var(--text-dim);
+            text-align: center;
+            font-style: italic;
+            opacity: 0.7;
+        }
+
+        /* Report View */
+        #reportView {
+            display: none;
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .timestamp {
+            color: var(--text-dim);
+            margin-bottom: 15px;
+        }
+
+        /* Utility */
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 1000px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <header>
+            <h1>🛡️ CYBER SENTINEL v2.0</h1>
+            <p>ACTIVE THREAT INTERCEPTION & INTELLIGENCE SYSTEM</p>
+        </header>
+
+        <!-- MAIN VIEW -->
+        <div id="mainView">
+            <div class="main-grid">
+                <!-- LEFT: INPUT & CONVERSATION -->
+                <div>
+                    <div class="card">
+                        <div class="card-title">📨 Scam Message Input</div>
+                        <textarea id="scamInput"
+                            placeholder="Paste suspected scam message here...
+
+Example:
+Dear customer, your refund of Rs.5000 is pending. Send UPI to ravi@ybl to activate. Click: bit.ly/refund123"></textarea>
+                        <div class="btn-group">
+                            <button class="btn-primary" onclick="startHoneypot()">🚀 INITIALIZE</button>
+                            <button class="btn-secondary" onclick="clearAll()">🔄 SYSTEM RESET</button>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top: 20px;">
+                        <div class="card-title">💬 TERMINAL LOG</div>
+                        <div class="conversation" id="conversationLog">
+                            <div class="empty-state">SYSTEM IDLE. AWAITING INPUT...</div>
+                        </div>
+                        <div class="btn-group" style="margin-top: 15px;">
+                            <button class="btn-secondary" id="continueBtn" onclick="continueConversation()" disabled>⏭️
+                                NEXT CYCLE</button>
+                            <button class="btn-success" id="voiceCallBtn" onclick="toggleVoiceCall()" disabled>🎤 ENGAGE
+                                VOICE</button>
+                            <button class="btn-danger" id="stopBtn" onclick="stopHoneypot()" disabled>⏹️
+                                TERMINATE</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT: ANALYSIS -->
+                <div>
+                    <div class="card">
+                        <div class="card-title">🔍 REAL-TIME INTELLIGENCE</div>
+                        <div id="scamTypeDisplay" style="margin-bottom: 15px;">
+                            <div class="empty-state">NO DATA DETECTED</div>
+                        </div>
+                        <div class="stats">
+                            <div class="stat-box">
+                                <div class="stat-value" id="messageCount">0</div>
+                                <div class="stat-label">PACKETS</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value" id="indicatorCount">0</div>
+                                <div class="stat-label">THREATS</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top: 20px;">
+                        <div class="card-title">⚠️ EXTRACTED ARTIFACTS</div>
+                        <div class="indicator-list" id="indicatorList">
+                            <div class="empty-state">NO ARTIFACTS CAPTURED</div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top: 20px;">
+                        <div class="card-title">📊 RISK ASSESSMENT</div>
+                        <div id="riskDisplay" style="text-align: center; padding: 20px;">
+                            <div class="empty-state">AWAITING ANALYSIS...</div>
+                        </div>
+                        <button class="btn-primary" onclick="viewReport()" style="width: 100%; margin-top: 15px;">
+                            📄 EXPORT INTEL REPORT
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- REPORT VIEW -->
+        <div id="reportView">
+            <div class="card">
+                <div class="report-header">
+                    <div class="card-title">📄 FORENSIC REPORT</div>
+                    <button class="btn-secondary" onclick="backToMain()">← RETURN</button>
+                </div>
+                <div id="reportContent"></div>
+                <div class="btn-group" style="margin-top: 20px;">
+                    <button class="btn-primary" onclick="exportReport()">💾 DOWNLOAD JSON</button>
+                    <button class="btn-secondary" onclick="backToMain()">← RETURN TO CONSOLE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // STATE MANAGEMENT
+        // ============================================
+        let conversation = [];
+        let indicators = {
+            upi_ids: [],
+            urls: [],
+            phones: [],
+            keywords: []
+        };
+        let scamType = "Unknown";
+        let isActive = false;
+        let messageCount = 0;
+        let scammerLastMessage = "";
+
+        // Voice call state
+        let voiceCallActive = false;
+        let recognition = null;
+        let isProcessing = false;
+        let currentTurn = 0;
+        const MAX_TURNS = 20;
+
+        // ============================================
+        // SCAM TYPE DETECTION
+        // ============================================
+        function detectScamType(text) {
+            const lower = text.toLowerCase();
+
+            if (lower.includes('refund') || lower.includes('cashback') || lower.includes('credited')) {
+                return 'UPI Refund Scam';
+            } else if (lower.includes('kyc') || lower.includes('verify') || lower.includes('update') || lower.includes('expired')) {
+                return 'KYC Update Scam';
+            } else if (lower.includes('parcel') || lower.includes('courier') || lower.includes('delivery') || lower.includes('package')) {
+                return 'Courier/Delivery Scam';
+            } else if (lower.includes('computer') || lower.includes('virus') || lower.includes('antivirus') || lower.includes('technical')) {
+                return 'Tech Support Scam';
+            } else if (lower.includes('prize') || lower.includes('winner') || lower.includes('lottery') || lower.includes('congratulations')) {
+                return 'Prize/Lottery Scam';
+            } else if (lower.includes('loan') || lower.includes('approval') || lower.includes('credit')) {
+                return 'Loan Approval Scam';
+            }
+
+            return 'Generic Scam';
+        }
+
+        // ============================================
+        // INDICATOR EXTRACTION ENGINE
+        // ============================================
+        function extractIndicators(text) {
+            const newIndicators = {
+                upi_ids: [],
+                urls: [],
+                phones: [],
+                keywords: []
+            };
+
+            // UPI IDs
+            const upiPattern = /[a-zA-Z0-9._-]+@(upi|ybl|paytm|oksbi|okicici|okaxis|okhdfcbank)/g;
+            const upiMatches = text.match(upiPattern);
+            if (upiMatches) {
+                upiMatches.forEach(upi => {
+                    if (!indicators.upi_ids.includes(upi)) {
+                        indicators.upi_ids.push(upi);
+                        newIndicators.upi_ids.push(upi);
+                    }
+                });
+            }
+
+            // URLs
+            const urlPattern = /(https?:\/\/[^\s]+|www\.[^\s]+|[a-zA-Z0-9-]+\.(com|in|net|org|xyz|tk|ml|ga|cf|click)[^\s]*|bit\.ly\/[^\s]+)/g;
+            const urlMatches = text.match(urlPattern);
+            if (urlMatches) {
+                urlMatches.forEach(url => {
+                    if (!indicators.urls.includes(url)) {
+                        indicators.urls.push(url);
+                        newIndicators.urls.push(url);
+                    }
+                });
+            }
+
+            // Phone numbers
+            const phonePattern = /(\+91[-\s]?)?[6789]\d{9}/g;
+            const phoneMatches = text.match(phonePattern);
+            if (phoneMatches) {
+                phoneMatches.forEach(phone => {
+                    if (!indicators.phones.includes(phone)) {
+                        indicators.phones.push(phone);
+                        newIndicators.phones.push(phone);
+                    }
+                });
+            }
+
+            // Keywords
+            const keywordList = ['otp', 'kyc', 'refund', 'urgent', 'verify', 'block', 'suspended', 'expire', 'click', 'link', 'activate', 'confirm', 'account', 'payment', 'transfer'];
+            keywordList.forEach(keyword => {
+                if (text.toLowerCase().includes(keyword) && !indicators.keywords.includes(keyword)) {
+                    indicators.keywords.push(keyword);
+                    newIndicators.keywords.push(keyword);
+                }
+            });
+
+            return newIndicators;
+        }
+
+        // ============================================
+        // AGENTIC AI RESPONSE GENERATOR
+        // ============================================
+        function generateAIResponse(scammerMessage) {
+            const lower = scammerMessage.toLowerCase();
+
+            // Detect what scammer is asking for
+            const needsUPI = lower.includes('upi') || lower.includes('pay') || lower.includes('send') || lower.includes('@');
+            const needsLink = lower.includes('link') || lower.includes('click') || lower.includes('website') || lower.includes('http');
+            const needsOTP = lower.includes('otp') || lower.includes('code') || lower.includes('verification');
+            const needsKYC = lower.includes('kyc') || lower.includes('verify') || lower.includes('document');
+            const needsPhone = lower.includes('call') || lower.includes('number') || lower.includes('contact');
+
+            // Confused responses based on context
+            if (needsUPI) {
+                const responses = [
+                    "UPI ka full naam kya hai sir? Payment app kaun sa use karna hai?",
+                    "Mere paas Google Pay hai. UPI ID kaise banaye? Step by step batao na.",
+                    "UPI mein amount kitna enter karna hai? Screenshot bhej do please.",
+                    "Payment successful nahi ho raha. Error aa raha hai. Kya karu?",
+                    "UPI pin yaad nahi aa raha. Reset kaise kare? Help kar do."
+                ];
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+
+            if (needsLink) {
+                const responses = [
+                    "Link open nahi ho rahi. Dobara bhejo please. Ya screenshot bhejo kya dikhta hai.",
+                    "Link par click kiya but kuch nahi hua. Kya karna hai ab?",
+                    "Link secure hai na? Mera phone hang nahi hoga? Thoda dar lag raha hai.",
+                    "Isme kaunsa app download karna hai? Name spelling batao.",
+                    "Link mein password maang raha hai. Kya enter karu?"
+                ];
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+
+            if (needsOTP) {
+                const responses = [
+                    "OTP kahan aayega? SMS mein ya WhatsApp mein? Abhi tak nahi aaya.",
+                    "OTP ka expire time kitna hai? Jaldi batao kya enter karna hai.",
+                    "4 digit ka hai ya 6 digit ka? Confirm kar lo.",
+                    "OTP ke baad kya hoga? Payment ho jayegi automatically?",
+                    "OTP galat ho gaya lagta hai. Resend ka option kahan hai?"
+                ];
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+
+            if (needsKYC) {
+                const responses = [
+                    "KYC ke liye kaunse documents chahiye? Aadhaar chalega?",
+                    "Photo kaise upload karu? Camera se lu ya gallery se?",
+                    "Mera KYC kitne din mein complete hoga? Urgent hai kya?",
+                    "KYC form bharna hai kya? Link ya app download karna padega?",
+                    "Bina KYC ke kya problem hogi? Service band ho jayegi kya?"
+                ];
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+
+            if (needsPhone) {
+                const responses = [
+                    "Aapka official number kya hai? Main wapas call karunga verify karne ke liye.",
+                    "Aap kis company se bol rahe ho? Customer care number confirm kar do.",
+                    "Toll-free number hai kya? Main landline se call karunga.",
+                    "WhatsApp number bhi hai kya? SMS better hai mujhe.",
+                    "Call recording chal rahi hai? Security ke liye zaruri hai."
+                ];
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+
+            // Generic confused responses
+            const genericResponses = [
+                "Thoda samajh nahi aaya. Hindi mein explain karo please.",
+                "Wait karo, pen le leta hu notes ke liye. Phir se batao.",
+                "Mere bete ko phone de du? Wo techie hai, samjha dega.",
+                "Pehle aap apna naam aur company ka naam batao. Trust ke liye.",
+                "Mujhe customer care se verify karna hai. Official email bhejo.",
+                "Itna jaldi kyu hai? Kal nahi kar sakte kya ye sab?",
+                "Ye sab safe hai na? Fraud toh nahi hai? News mein dekha tha aise scam.",
+                "Aapke manager ka number do. Main unhe confirm karunga.",
+                "Process samajh nahi aa rahi. Video tutorial hai kya?",
+                "Koi charges toh nahi lagega na? Free service hai guarantee se?"
+            ];
+
+            return genericResponses[Math.floor(Math.random() * genericResponses.length)];
+        }
+
+        // ============================================
+        // RISK SCORING
+        // ============================================
+        function calculateRisk() {
+            const totalIndicators =
+                indicators.upi_ids.length +
+                indicators.urls.length +
+                indicators.phones.length +
+                (indicators.keywords.length > 5 ? 5 : indicators.keywords.length); // Cap keywords at 5
+
+            if (totalIndicators >= 4) return 'HIGH';
+            if (totalIndicators >= 2) return 'MEDIUM';
+            return 'LOW';
+        }
+
+        // ============================================
+        // UI FUNCTIONS
+        // ============================================
+        function addMessage(text, type, turn = null) {
+            const log = document.getElementById('conversationLog');
+
+            if (conversation.length === 0) {
+                log.innerHTML = '';
+            }
+
+            const msg = document.createElement('div');
+            msg.className = `message ${type}`;
+
+            const label = document.createElement('div');
+            label.className = 'message-label';
+
+            // Add turn counter if provided and it's an AI message
+            if (turn !== null && type === 'ai') {
+                const turnCounter = document.createElement('div');
+                turnCounter.className = 'turn-counter';
+                turnCounter.textContent = `AI User speaking (Turn ${turn}/${MAX_TURNS})`;
+                msg.appendChild(turnCounter);
+            }
+
+            label.textContent = type === 'scammer' ? '🚨 SCAMMER' : type === 'ai' ? '🤖 AI AGENT' : 'ℹ️ SYSTEM';
+
+            const content = document.createElement('div');
+            content.className = 'message-text';
+            content.textContent = text;
+
+            msg.appendChild(label);
+            msg.appendChild(content);
+            log.appendChild(msg);
+
+            log.scrollTop = log.scrollHeight;
+
+            conversation.push({ type, text, timestamp: new Date(), turn });
+            messageCount++;
+            document.getElementById('messageCount').textContent = messageCount;
+        }
+
+        function updateIndicatorDisplay() {
+            const list = document.getElementById('indicatorList');
+            const totalCount =
+                indicators.upi_ids.length +
+                indicators.urls.length +
+                indicators.phones.length +
+                indicators.keywords.length;
+
+            if (totalCount === 0) {
+                list.innerHTML = '<div class="empty-state">NO ARTIFACTS CAPTURED</div>';
+                return;
+            }
+
+            list.innerHTML = '';
+
+            indicators.upi_ids.forEach(upi => {
+                list.innerHTML += `
+                    <div class="indicator-item">
+                        <span class="indicator-type">UPI ID</span>
+                        <span class="indicator-value">${upi}</span>
+                    </div>
+                `;
+            });
+
+            indicators.urls.forEach(url => {
+                list.innerHTML += `
+                    <div class="indicator-item">
+                        <span class="indicator-type">URL</span>
+                        <span class="indicator-value">${url.length > 40 ? url.substring(0, 40) + '...' : url}</span>
+                    </div>
+                `;
+            });
+
+            indicators.phones.forEach(phone => {
+                list.innerHTML += `
+                    <div class="indicator-item">
+                        <span class="indicator-type">PHONE</span>
+                        <span class="indicator-value">${phone}</span>
+                    </div>
+                `;
+            });
+
+            indicators.keywords.forEach(keyword => {
+                list.innerHTML += `
+                    <div class="indicator-item">
+                        <span class="indicator-type">KEYWORD</span>
+                        <span class="indicator-value">${keyword}</span>
+                    </div>
+                `;
+            });
+
+            document.getElementById('indicatorCount').textContent = totalCount;
+        }
+
+        function updateRiskDisplay() {
+            const risk = calculateRisk();
+            const display = document.getElementById('riskDisplay');
+
+            display.innerHTML = `
+                <div class="risk-badge risk-${risk.toLowerCase()}">${risk} RISK</div>
+            `;
+        }
+
+        function updateScamTypeDisplay() {
+            const display = document.getElementById('scamTypeDisplay');
+            display.innerHTML = `<div class="scam-type-badge">📍 ${scamType}</div>`;
+        }
+
+        // ============================================
+        // MAIN FUNCTIONS
+        // ============================================
+        function startHoneypot() {
+            const input = document.getElementById('scamInput').value.trim();
+
+            if (!input) {
+                alert('Please paste a scam message first!');
+                return;
+            }
+
+            // Reset state
+            conversation = [];
+            indicators = { upi_ids: [], urls: [], phones: [], keywords: [] };
+            messageCount = 0;
+            isActive = true;
+            currentTurn = 0;
+
+            // Detect scam type
+            scamType = detectScamType(input);
+            updateScamTypeDisplay();
+
+            // Extract initial indicators
+            extractIndicators(input);
+            updateIndicatorDisplay();
+            updateRiskDisplay();
+
+            // Add to conversation
+            scammerLastMessage = input;
+            addMessage(input, 'scammer');
+            addMessage('HONEYPOT ACTIVATED. AI AGENT DEPLOYED...', 'system');
+
+            // Generate first AI response
+            setTimeout(() => {
+                currentTurn++;
+                const aiResponse = generateAIResponse(input);
+                addMessage(aiResponse, 'ai', currentTurn);
+
+                document.getElementById('continueBtn').disabled = false;
+                document.getElementById('voiceCallBtn').disabled = false;
+                document.getElementById('stopBtn').disabled = false;
+            }, 1000);
+        }
+
+        function continueConversation() {
+            if (!isActive) return;
+
+            // Simulate scammer's next message (in real scenario, this would come from actual scammer)
+            addMessage('SIMULATING SCAMMER RESPONSE...', 'system');
+
+            setTimeout(() => {
+                // Generate a simulated scammer response based on scam type
+                let scammerResponse = generateScammerResponse();
+                scammerLastMessage = scammerResponse;
+
+                addMessage(scammerResponse, 'scammer');
+                extractIndicators(scammerResponse);
+                updateIndicatorDisplay();
+                updateRiskDisplay();
+
+                // AI responds
+                setTimeout(() => {
+                    currentTurn++;
+                    const aiResponse = generateAIResponse(scammerResponse);
+                    addMessage(aiResponse, 'ai', currentTurn);
+
+                    // Check if max turns reached
+                    if (currentTurn >= MAX_TURNS) {
+                        addMessage(`MAXIMUM TURNS (${MAX_TURNS}) REACHED. INTELLIGENCE GATHERED.`, 'system');
+                        stopHoneypot();
+                    }
+                }, 1500);
+
+            }, 1000);
+        }
+
+        function generateScammerResponse() {
+            // Simulate scammer trying to get information based on scam type
+            if (scamType.includes('UPI')) {
+                const responses = [
+                    "Sir, refund ke liye aapko ravi.sharma@ybl par Rs.1 send karna hoga for verification. Then 5000 credited hoga.",
+                    "Google Pay open karo aur hamara UPI ID add karo: support2023@paytm. Amount Rs.10 send karo testing ke liye.",
+                    "Link par click karo: https://refund-portal.tk/claim aur apna UPI PIN enter karo to activate cashback."
+                ];
+                return responses[Math.floor(Math.random() * responses.length)];
+            } else if (scamType.includes('KYC')) {
+                const responses = [
+                    "Sir apka KYC expire ho gaya hai. Update karne ke liye is link par jao: www.kyc-update-now.xyz aur Aadhaar details bharo.",
+                    "Verification ke liye call karo: +91-9876543210. OTP share karna hoga warna account block ho jayega 24 hours mein.",
+                    "KYC form download karo is link se: bit.ly/kyc2024 aur submit karo urgently. Service discontinue ho jayegi."
+                ];
+                return responses[Math.floor(Math.random() * responses.length)];
+            } else {
+                const responses = [
+                    "Ji sir, process complete karne ke liye hamari website par jao: secure-verify.in aur login karo with OTP.",
+                    "Customer care number hai: 8888777766. Call karke OTP confirm karo taki issue resolve ho.",
+                    "Link: https://bit.ly/urgent-action click karke immediately action lo warna penalty lagega."
+                ];
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+        }
+
+        function stopHoneypot() {
+            isActive = false;
+            voiceCallActive = false;
+            if (recognition) recognition.stop();
+
+            addMessage('HONEYPOT STOPPED. SESSION TERMINATED.', 'system');
+            document.getElementById('continueBtn').disabled = true;
+            document.getElementById('voiceCallBtn').disabled = true;
+            document.getElementById('voiceCallBtn').textContent = '🎤 ENGAGE VOICE';
+            document.getElementById('voiceCallBtn').classList.remove('btn-danger');
+            document.getElementById('voiceCallBtn').classList.add('btn-success');
+            document.getElementById('stopBtn').disabled = true;
+        }
+
+        function clearAll() {
+            if (confirm('This will clear all data. Continue?')) {
+                document.getElementById('scamInput').value = '';
+                document.getElementById('conversationLog').innerHTML = '<div class="empty-state">SYSTEM IDLE. AWAITING INPUT...</div>';
+                document.getElementById('indicatorList').innerHTML = '<div class="empty-state">NO ARTIFACTS CAPTURED</div>';
+                document.getElementById('scamTypeDisplay').innerHTML = '<div class="empty-state">NO DATA DETECTED</div>';
+                document.getElementById('riskDisplay').innerHTML = '<div class="empty-state">AWAITING ANALYSIS...</div>';
+                document.getElementById('messageCount').textContent = '0';
+                document.getElementById('indicatorCount').textContent = '0';
+
+                conversation = [];
+                indicators = { upi_ids: [], urls: [], phones: [], keywords: [] };
+                scamType = "Unknown";
+                messageCount = 0;
+                isActive = false;
+                currentTurn = 0;
+
+                document.getElementById('continueBtn').disabled = true;
+                document.getElementById('stopBtn').disabled = true;
+            }
+        }
+
+        // ============================================
+        // REPORT FUNCTIONS
+        // ============================================
+        function viewReport() {
+            if (conversation.length === 0) {
+                alert('No data to generate report. Start honeypot first.');
+                return;
+            }
+
+            const reportData = {
+                scam_id: Date.now(),
+                timestamp: new Date().toLocaleString(),
+                scam_type: scamType,
+                risk_level: calculateRisk(),
+                indicators: indicators,
+                conversation_length: messageCount,
+                total_indicators:
+                    indicators.upi_ids.length +
+                    indicators.urls.length +
+                    indicators.phones.length +
+                    indicators.keywords.length
+            };
+
+            // Store in localStorage
+            localStorage.setItem('latestReport', JSON.stringify(reportData));
+
+            // Generate report HTML
+            let reportHTML = `
+                <div class="timestamp">GENERATED: ${reportData.timestamp}</div>
+                <div class="stats" style="margin: 20px 0;">
+                    <div class="stat-box">
+                        <div class="stat-value">${reportData.conversation_length}</div>
+                        <div class="stat-label">PACKETS</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">${reportData.total_indicators}</div>
+                        <div class="stat-label">THREATS</div>
+                    </div>
+                </div>
+                
+                <div class="scam-type-badge" style="margin: 20px 0;">📍 ${reportData.scam_type}</div>
+                <div class="risk-badge risk-${reportData.risk_level.toLowerCase()}" style="margin: 20px 0;">${reportData.risk_level} RISK</div>
+                
+                <div style="margin-top: 30px;">
+                    <h3 style="color: var(--neon-cyan); margin-bottom: 15px; font-family: 'Orbitron', sans-serif;">FORENSIC ARTIFACTS</h3>
+            `;
+
+            if (reportData.indicators.upi_ids.length > 0) {
+                reportHTML += `<p style="margin: 10px 0; color: var(--neon-amber);">🔸 UPI IDs: ${reportData.indicators.upi_ids.join(', ')}</p>`;
+            }
+            if (reportData.indicators.urls.length > 0) {
+                reportHTML += `<p style="margin: 10px 0; color: var(--neon-amber);">🔸 URLs: ${reportData.indicators.urls.join(', ')}</p>`;
+            }
+            if (reportData.indicators.phones.length > 0) {
+                reportHTML += `<p style="margin: 10px 0; color: var(--neon-amber);">🔸 Phone Numbers: ${reportData.indicators.phones.join(', ')}</p>`;
+            }
+            if (reportData.indicators.keywords.length > 0) {
+                reportHTML += `<p style="margin: 10px 0; color: var(--neon-amber);">🔸 Keywords: ${reportData.indicators.keywords.join(', ')}</p>`;
+            }
+
+            reportHTML += `</div>`;
+
+            document.getElementById('reportContent').innerHTML = reportHTML;
+            document.getElementById('mainView').style.display = 'none';
+            document.getElementById('reportView').style.display = 'block';
+        }
+
+        function backToMain() {
+            document.getElementById('mainView').style.display = 'block';
+            document.getElementById('reportView').style.display = 'none';
+        }
+
+        function exportReport() {
+            const reportData = localStorage.getItem('latestReport');
+            if (!reportData) {
+                alert('No report data available');
+                return;
+            }
+
+            const blob = new Blob([reportData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `cyber-sentinel-report-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // ============================================
+        // VOICE CALL FUNCTIONALITY (Simplified)
+        // ============================================
+        window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (window.SpeechRecognition) {
+            recognition = new window.SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            // Speech recognition event handlers
+            recognition.onresult = (event) => {
+                const transcript = event.results[event.results.length - 1][0].transcript;
+
+                addMessage(`🎤 YOU (Voice): ${transcript}`, 'ai');
+
+                // Extract indicators from voice input
+                extractIndicators(transcript);
+                updateIndicatorDisplay();
+
+                // Generate scammer response
+                setTimeout(() => {
+                    const scammerResponse = generateScammerResponse();
+                    scammerLastMessage = scammerResponse;
+
+                    addMessage(scammerResponse, 'scammer');
+                    extractIndicators(scammerResponse);
+                    updateIndicatorDisplay();
+                    updateRiskDisplay();
+
+                    // Speak the scammer's response
+                    speakText(scammerResponse);
+                }, 1000);
+            };
+
+            recognition.onerror = (event) => {
+                addMessage(`❌ VOICE ERROR: ${event.error}`, 'system');
+                if (event.error === 'no-speech') {
+                    addMessage('⚠️ No speech detected. Please speak clearly.', 'system');
+                }
+            };
+
+            recognition.onend = () => {
+                // Auto-restart if still active
+                if (voiceCallActive) {
+                    try {
+                        recognition.start();
+                    } catch (e) {
+                        // Already running, ignore
+                    }
+                }
+            };
+        }
+
+        // Text-to-Speech function
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                //Stop any ongoing speech
+                speechSynthesis.cancel();
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 1.0;
+                utterance.pitch = 1.0;
+                utterance.volume = 1.0;
+                utterance.lang = 'en-IN'; // Indian English accent
+
+                speechSynthesis.speak(utterance);
+
+                addMessage('🔊 AI SPEAKING...', 'system');
+            }
+        }
+
+        function toggleVoiceCall() {
+            if (!recognition) {
+                alert('Speech Recognition not supported in this browser.\n\nPlease use:\n✅ Google Chrome\n✅ Microsoft Edge\n\nMake sure you\'re accessing via HTTPS or localhost.');
+                return;
+            }
+
+            const btn = document.getElementById('voiceCallBtn');
+
+            if (!voiceCallActive) {
+                // START VOICE CALL
+                voiceCallActive = true;
+                btn.textContent = '🔴 TERMINATE VOICE';
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-danger');
+
+                addMessage('📞 VOICE CHANNEL OPEN. ENGAGING TARGET...', 'system');
+
+                try {
+                    recognition.start();
+                } catch (e) {
+                    addMessage('❌ FAILED TO INITIALIZE AUDIO SUBSYSTEM', 'system');
+                    voiceCallActive = false;
+                    btn.textContent = '🎤 ENGAGE VOICE';
+                    btn.classList.remove('btn-danger');
+                    btn.classList.add('btn-success');
+                }
+            } else {
+                // END VOICE CALL
+                voiceCallActive = false;
+                recognition.stop();
+
+                btn.textContent = '🎤 ENGAGE VOICE';
+                btn.classList.remove('btn-danger');
+                btn.classList.add('btn-success');
+
+                addMessage('📞 VOICE CHANNEL CLOSED', 'system');
+            }
+        }
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Sentinel - Threat Intelligence Platform</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --cyber-black: #000a0f;
+            --cyber-dark: #001419;
+            --neon-cyan: #00f3ff;
+            --neon-cyan-dark: #00a8b3;
+            --panel-bg: rgba(0, 20, 25, 0.95);
+            --text-main: #e0faff;
+            --text-dim: #5c7080;
+        }
+
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background: var(--cyber-black);
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 243, 255, 0.03) 2px, rgba(0, 243, 255, 0.03) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0, 243, 255, 0.03) 2px, rgba(0, 243, 255, 0.03) 4px);
+            background-size: 50px 50px;
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Scanline Effect */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg,
+                    rgba(0, 0, 0, 0.15),
+                    rgba(0, 0, 0, 0.15) 1px,
+                    transparent 1px,
+                    transparent 2px);
+            pointer-events: none;
+            z-index: 1000;
+            animation: scanline 8s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% {
+                transform: translateY(0);
+            }
+
+            100% {
+                transform: translateY(2px);
+            }
+        }
+
+        /* Circuit Background */
+        .circuit-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: 0;
+            background-image:
+                radial-gradient(circle at 10% 20%, var(--neon-cyan) 1px, transparent 1px),
+                radial-gradient(circle at 90% 80%, var(--neon-cyan) 1px, transparent 1px),
+                radial-gradient(circle at 50% 50%, var(--neon-cyan) 1px, transparent 1px);
+            background-size: 200px 200px;
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .logo-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 10px;
+        }
+
+        .shield-logo {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-cyan-dark));
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            filter: drop-shadow(0 0 30px var(--neon-cyan));
+            animation: pulse-logo 3s ease-in-out infinite;
+        }
+
+        .shield-logo::before {
+            content: "👁";
+            font-size: 35px;
+            filter: brightness(0) invert(1);
+        }
+
+        @keyframes pulse-logo {
+
+            0%,
+            100% {
+                filter: drop-shadow(0 0 30px var(--neon-cyan));
+            }
+
+            50% {
+                filter: drop-shadow(0 0 50px var(--neon-cyan));
+            }
+        }
+
+        .main-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4rem;
+            font-weight: 900;
+            color: var(--neon-cyan);
+            text-transform: uppercase;
+            letter-spacing: 10px;
+            text-shadow:
+                0 0 20px var(--neon-cyan),
+                0 0 40px var(--neon-cyan),
+                0 0 60px var(--neon-cyan),
+                0 0 80px rgba(0, 243, 255, 0.5);
+            animation: glow-text 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow-text {
+            from {
+                text-shadow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan);
+            }
+
+            to {
+                text-shadow: 0 0 30px var(--neon-cyan), 0 0 60px var(--neon-cyan), 0 0 90px rgba(0, 243, 255, 0.8);
+            }
+        }
+
+        .subtitle {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            color: var(--neon-cyan);
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            margin-top: 10px;
+            opacity: 0.8;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .tab-btn {
+            position: relative;
+            padding: 25px 80px;
+            background: rgba(0, 243, 255, 0.05);
+            border: 3px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            cursor: pointer;
+            clip-path: polygon(20px 0, 100% 0, calc(100% - 20px) 100%, 0 100%);
+            transition: all 0.3s ease;
+            box-shadow:
+                inset 0 0 30px rgba(0, 243, 255, 0.1),
+                0 0 30px rgba(0, 243, 255, 0.3);
+        }
+
+        .tab-btn::before {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            background: linear-gradient(45deg, transparent 30%, var(--neon-cyan) 50%, transparent 70%);
+            clip-path: polygon(20px 0, 100% 0, calc(100% - 20px) 100%, 0 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tab-btn:hover::before {
+            opacity: 0.2;
+        }
+
+        .tab-btn.active {
+            background: var(--neon-cyan);
+            color: var(--cyber-black);
+            box-shadow:
+                0 0 40px var(--neon-cyan),
+                0 0 80px var(--neon-cyan),
+                inset 0 0 30px rgba(255, 255, 255, 0.3);
+            animation: pulse-tab 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-tab {
+
+            0%,
+            100% {
+                box-shadow: 0 0 40px var(--neon-cyan), 0 0 80px var(--neon-cyan);
+            }
+
+            50% {
+                box-shadow: 0 0 60px var(--neon-cyan), 0 0 120px var(--neon-cyan);
+            }
+        }
+
+        .tab-icon {
+            margin-right: 15px;
+            font-size: 1.5rem;
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+
+        /* Main Panel */
+        .main-panel {
+            position: relative;
+            margin: 0 20px;
+            padding: 0;
+            background: var(--panel-bg);
+            border: 4px solid var(--neon-cyan);
+            border-radius: 20px;
+            box-shadow:
+                0 0 50px rgba(0, 243, 255, 0.4),
+                inset 0 0 50px rgba(0, 243, 255, 0.05);
+            overflow: hidden;
+        }
+
+        /* Corner Circuit Decorations */
+        .corner-deco {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--neon-cyan);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .corner-tl {
+            top: -4px;
+            left: -4px;
+            border-right: 0;
+            border-bottom: 0;
+            box-shadow: -10px -10px 30px rgba(0, 243, 255, 0.5);
+        }
+
+        .corner-tr {
+            top: -4px;
+            right: -4px;
+            border-left: 0;
+            border-bottom: 0;
+            box-shadow: 10px -10px 30px rgba(0, 243, 255, 0.5);
+        }
+
+        .corner-bl {
+            bottom: -4px;
+            left: -4px;
+            border-right: 0;
+            border-top: 0;
+            box-shadow: -10px 10px 30px rgba(0, 243, 255, 0.5);
+        }
+
+        .corner-br {
+            bottom: -4px;
+            right: -4px;
+            border-left: 0;
+            border-top: 0;
+            box-shadow: 10px 10px 30px rgba(0, 243, 255, 0.5);
+        }
+
+        /* Power Indicators */
+        .power-dot {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--neon-cyan);
+            box-shadow:
+                0 0 20px var(--neon-cyan),
+                0 0 40px var(--neon-cyan);
+            z-index: 15;
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        .power-left {
+            top: 30px;
+            left: 30px;
+        }
+
+        .power-right {
+            top: 30px;
+            right: 30px;
+        }
+
+        .power-bl {
+            bottom: 30px;
+            left: 30px;
+        }
+
+        .power-br {
+            bottom: 30px;
+            right: 30px;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            padding: 40px;
+            min-height: 80vh;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Iframe Fallback */
+        .iframe-container {
+            width: 100%;
+            min-height: 75vh;
+        }
+
+        iframe {
+            width: 100%;
+            height: 75vh;
+            border: 2px solid rgba(0, 243, 255, 0.2);
+            background: var(--cyber-black);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .main-title {
+                font-size: 3rem;
+                letter-spacing: 6px;
+            }
+
+            .tab-btn {
+                padding: 18px 50px;
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .main-title {
+                font-size: 2.5rem;
+                letter-spacing: 5px;
+            }
+
+            .subtitle {
+                font-size: 0.9rem;
+                letter-spacing: 3px;
+            }
+
+            .tab-btn {
+                padding: 18px 40px;
+                font-size: 1rem;
+            }
+
+            .main-panel {
+                margin: 0 10px;
+                padding: 30px 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .shield-logo {
+                width: 50px;
+                height: 50px;
+            }
+
+            .shield-logo::before {
+                font-size: 25px;
+            }
+
+            .main-title {
+                font-size: 1.8rem;
+                letter-spacing: 3px;
+            }
+
+            .subtitle {
+                font-size: 0.65rem;
+                letter-spacing: 2px;
+            }
+
+            .tab-nav {
+                flex-direction: column;
+                gap: 15px;
+                padding: 0 10px;
+                margin-bottom: 25px;
+            }
+
+            .tab-btn {
+                padding: 18px 25px;
+                font-size: 1rem;
+                letter-spacing: 1px;
+                clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+            }
+
+            .tab-icon {
+                font-size: 1.2rem;
+                margin-right: 8px;
+            }
+
+            .main-panel {
+                margin: 0 5px;
+                padding: 25px 15px;
+                border-radius: 15px;
+            }
+
+            .corner-deco {
+                width: 40px;
+                height: 40px;
+            }
+
+            .power-dot {
+                width: 12px;
+                height: 12px;
+            }
+
+            .power-left,
+            .power-bl {
+                left: 15px;
+            }
+
+            .power-right,
+            .power-br {
+                right: 15px;
+            }
+
+            .power-left,
+            .power-right {
+                top: 15px;
+            }
+
+            .power-bl,
+            .power-br {
+                bottom: 15px;
+            }
+
+            .tab-content {
+                padding: 20px 10px;
+            }
+
+            iframe {
+                height: 60vh;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-title {
+                font-size: 1.4rem;
+                letter-spacing: 2px;
+            }
+
+            .subtitle {
+                font-size: 0.55rem;
+                letter-spacing: 1px;
+            }
+
+            .tab-btn {
+                padding: 15px 20px;
+                font-size: 0.85rem;
+            }
+
+            .corner-deco {
+                width: 30px;
+                height: 30px;
+            }
+
+            iframe {
+                height: 55vh;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Circuit Pattern Background -->
+    <div class="circuit-pattern"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo-title">
+                <div class="shield-logo"></div>
+                <h1 class="main-title">CYBER SENTINEL</h1>
+            </div>
+            <p class="subtitle">UNIFIED THREAT INTELLIGENCE & API TESTING PLATFORM</p>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('honeypot')">
+                <span class="tab-icon">🛡️</span>HONEYPOT
+            </button>
+            <button class="tab-btn" onclick="switchTab('api')">
+                <span class="tab-icon">🔧</span>API TESTER
+            </button>
+        </div>
+
+        <!-- Main Panel -->
+        <div class="main-panel">
+            <!-- Corner Decorations -->
+            <div class="corner-deco corner-tl"></div>
+            <div class="corner-deco corner-tr"></div>
+            <div class="corner-deco corner-bl"></div>
+            <div class="corner-deco corner-br"></div>
+
+            <!-- Power Indicators -->
+            <div class="power-dot power-left"></div>
+            <div class="power-dot power-right"></div>
+            <div class="power-dot power-bl"></div>
+            <div class="power-dot power-br"></div>
+
+            <!-- Honeypot Tab -->
+            <div id="honeypot-tab" class="tab-content active">
+                <div class="iframe-container">
+                    <iframe src="hackthon.html" frameborder="0" title="Honeypot Interface"></iframe>
+                </div>
+            </div>
+
+            <!-- API Tester Tab -->
+            <div id="api-tab" class="tab-content">
+                <div class="iframe-container">
+                    <iframe src="api_tester.html" frameborder="0" title="API Tester Interface"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tab) {
+            // Remove active from all
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            // Add active to selected
+            if (tab === 'honeypot') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('honeypot-tab').classList.add('active');
+            } else if (tab === 'api') {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('api-tab').classList.add('active');
+            }
+        }
+
+        // System ready log
+        console.log('%c🛡️ CYBER SENTINEL - SYSTEM ONLINE', 'color: #00f3ff; font-size: 20px; font-weight: bold;');
+        console.log('%c📡 All systems operational', 'color: #00f3ff; font-size: 14px;');
+        console.log('%c🎙️ Voice Recognition: Integrated in Honeypot', 'color: #00f3ff; font-size: 14px;');
+    </script>
+</body>
+
+</html>
